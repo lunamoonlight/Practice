@@ -1,0 +1,24 @@
+
+CREATE TABLE customers (
+    id INT PRIMARY KEY,
+    full_name VARCHAR(255) NOT NULL,
+    email VARCHAR(100)
+);
+CREATE TABLE orders (
+    id INT PRIMARY KEY,
+    data_zakaza DATE NOT NULL,
+    customers_id INT NOT NULL,
+    FOREIGN KEY (customers_id) REFERENCES customers (id)
+);
+CREATE TABLE products (
+    id INT PRIMARY KEY,
+    products_name VARCHAR(255) NOT NULL,
+    zena INT
+);
+CREATE TABLE order_product (
+    quantity INT,
+    orders_id INT NOT NULL,
+    products_id INT NOT NULL,
+    FOREIGN KEY (orders_id) REFERENCES orders (id),
+    FOREIGN KEY (products_id) REFERENCES products (id)
+);
