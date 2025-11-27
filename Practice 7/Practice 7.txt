@@ -1,0 +1,69 @@
+CREATE TABLE students (
+    student_id SERIAL PRIMARY KEY,
+    full_name VARCHAR (255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL, 
+    start_year INT 
+);
+
+CREATE TABLE courses (
+    course_id SERIAL PRIMARY KEY, 
+    course_name VARCHAR(255) NOT NULL, 
+    credits INT CHECK (credits > 0)
+);
+
+CREATE TABLE enrollments (
+    student_id INT REFERENCES Students(student_id) ON DELETE CASCADE, 
+    course_id INT REFERENCES Courses(course_id) ON DELETE CASCADE,
+    grade CHAR(1),
+    PRIMARY KEY (student_id, course_id)
+);
+
+INSERT INTO students VALUES
+ (DEFAULT, 'Алексей Смирнов','alek@yandex.ru', 2021),
+ (DEFAULT, 'Елена Кузнецова','elena@yandex.ru', 2022),
+ (DEFAULT, 'Дмитрий Новиков','gmitriy@yandex.ru', 2021),
+ (DEFAULT, 'Ольга Морозова','olga@yandex.ru', 2023);
+
+INSERT INTO courses  VALUES 
+(DEFAULT, 'Введение в программирование', 5),
+(DEFAULT, 'База данных', 4),
+(DEFAULT, 'Веб-технологии', 4);
+
+INSERT INTO enrollments VALUES
+(1,2,'A'),
+(2,2,'B'),
+(3,1,DEFAULT),
+(3,2,DEFAULT),
+(3,3,DEFAULT);
+
+UPDATE students 
+SET email = 'elena.kuznetsova@newmail.com'
+where email = 'elena@yandex.ru';
+
+UPDATE enrollments 
+SET grade = 'A'
+WHERE student_id = 3 and course_id = 1;
+
+DELETE FROM students 
+WHERE email = 'olga@yandex.ru';
+
+
+SELECT * FROM students;
+
+SELECT course_name, credits FROM courses;
+
+SELECT full_name FROM students WHERE start_year = 2021;
+
+SELECT course_name FROM courses WHERE credits > 4;
+
+SELECT full_name FROM students WHERE email = 'elena.kuznetsova@newmail.com';
+
+SELECT * FROM students WHERE full_name LIKE 'Дмитрий%';
+
+SELECT * FROM enrollments WHERE grade IS NULL;
+
+SELECT * FROM courses ORDER BY course_name;
+
+SELECT * FROM students ORDER BY start_year ASC, full_name ASC;
+
+SELECT * FROM students ORDER BY full_name DESC LIMIT 2;
