@@ -1,0 +1,105 @@
+--Задание 1: Приведение к Первой нормальной форме (1НФ)
+CREATE TABLE Projects (
+    project_id INT PRIMARY KEY,
+    project_name VARCHAR(255),
+    team_members VARCHAR(1000) -- Пример: 'Алексеев, Борисов, Васильева'
+);
+CREATE TABLE Projects (
+    project_id INT PRIMARY KEY,
+    project_name VARCHAR(255)
+);
+CREATE TABLE Members (
+    member_id INT PRIMARY KEY,
+    member_name VARCHAR(255)
+);
+CREATE TABLE Project_Members (
+    project_id INT,
+    member_id INT,
+    FOREIGN KEY (project_id) REFERENCES Projects(project_id),
+    FOREIGN KEY (member_id) REFERENCES Members(member_id)
+);
+-- Тк в изначальная таблица атомарна, то в team_members не может находиться больше 1 человека
+-- Поэтому я сделала 3 таблицы M:M, одна из них связующая
+
+--Задание 2: Приведение ко Второй нормальной форме (2НФ)
+CREATE TABLE EquipmentRentals (
+    client_id INT,
+    equipment_id INT,
+    client_name VARCHAR(255),    -- Имя клиента
+    client_email VARCHAR(255),   -- Email клиента
+    equipment_name VARCHAR(255), -- Название оборудования
+    rental_date DATE,            -- Дата аренды
+    PRIMARY KEY (client_id, equipment_id)
+);
+CREATE TABLE Clients (
+    client_id INT PRIMARY KEY,
+    client_name VARCHAR(255), 
+    client_email VARCHAR(255)
+);
+CREATE TABLE Equipment (
+    equipment_id INT PRIMARY KEY,
+    equipment_name VARCHAR(255)
+);
+CREATE TABLE Rentals (
+    client_id INT,
+    equipment_id INT,
+    rental_date DATE,
+    PRIMARY KEY (client_id, equipment_id),
+    FOREIGN KEY (client_id) REFERENCES Clients(client_id),
+    FOREIGN KEY (equipment_id) REFERENCES Equipment(equipment_id)
+);
+--ну тут вроде понятно, что данные о клиенте, оборудовании и аренде написали в одну таблицу, так делать нельзя
+--я создала 3 таблицы для клиента, оборудовании и аренде
+--была проблема избыточности, если клиент закажет несколько оборудований, то его данные повторятся n количество раз
+
+--Задание 3 (со звездочкой): Комплексная нормализация
+CREATE TABLE StudentGrades (
+    student_id INT,
+    course_id INT,
+    student_name VARCHAR(255),
+    course_professor VARCHAR(255),
+    assignments_and_grades TEXT, -- Пример содержимого: '{"Quiz 1": 85, "Midterm": 92, "Essay": 88}'
+    PRIMARY KEY (student_id, course_id)
+);
+--убираем проблему атомарности
+CREATE TABLE StudentCourses (
+    student_id INT,
+    course_id INT,
+    student_name VARCHAR(255),
+    course_professor VARCHAR(255),
+    PRIMARY KEY (student_id, course_id)
+);
+
+CREATE TABLE Grades (
+    grade_id INT PRIMARY KEY,
+    student_id INT,
+    course_id INT,
+    assignment_name VARCHAR(255),
+    grade INT,
+    FOREIGN KEY (student_id, course_id) REFERENCES StudentCourses(student_id, course_id)
+);
+--StudentCourses нарушает 2НФ из-за частичных зависимостей
+CREATE TABLE Students (
+    student_id INT PRIMARY KEY,
+    student_name VARCHAR(255)
+);
+CREATE TABLE Courses (
+    course_id INT PRIMARY KEY,
+    course_professor VARCHAR(255)
+);
+CREATE TABLE StudentEnrollment (
+    student_id INT,
+    course_id INT,
+    PRIMARY KEY (student_id, course_id),
+    FOREIGN KEY (student_id) REFERENCES Students(student_id),
+    FOREIGN KEY (course_id) REFERENCES Courses(course_id)
+);
+CREATE TABLE Grades (
+    grade_id INT PRIMARY KEY,
+    student_id INT,
+    course_id INT,
+    assignment_name VARCHAR(255),
+    grade INT,
+    FOREIGN KEY (student_id, course_id) REFERENCES StudentEnrollment(student_id, course_id)
+);
+
