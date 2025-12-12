@@ -1,0 +1,89 @@
+--Задание 1: Приведение к Третьей нормальной форме (3НФ)
+CREATE TABLE Books (
+    book_id INT PRIMARY KEY,
+    title VARCHAR(255),
+    author_name VARCHAR(255),
+    publisher_id INT,
+    publisher_name VARCHAR(255),    -- Название издательства
+    publisher_city VARCHAR(100)     -- Город, в котором находится издательство
+);
+--title и publisher_id зависит от book_id (Зависимость от первичного ключа)
+--publisher_name зависит от publisher_id (Зависимость одного неключевого атрибута от другого)
+--Зависимость book_id -> publisher_id -> publisher_name транзитивная 
+-- приведем к 3НФ, разделив таблицу
+CREATE TABLE Books (
+    book_id INT PRIMARY KEY,
+    title VARCHAR(255)
+);
+CREATE TABLE Authors (
+    author_id INT PRIMARY KEY,
+    author_name VARCHAR(255)
+);
+CREATE TABLE Book_authors (
+    book_id INT,
+    author_id INT,
+    PRIMARY KEY (book_id, author_id),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id),
+    FOREIGN KEY (author_id) REFERENCES Authors(author_id)
+);
+CREATE TABLE Publishers (
+    publisher_id INT,
+    publisher_name VARCHAR(255),
+    publisher_city VARCHAR(100),
+    book_id INT,
+    author_id INT,
+    FOREIGN KEY (book_id, author_id) REFERENCES Book_authors(book_id, author_id)
+);
+--Задание 2: Приведение к Третьей нормальной форме (3НФ)
+CREATE TABLE RaceResults (
+    race_id INT,
+    driver_id INT,
+    car_model VARCHAR(100),      -- Модель автомобиля
+    car_manufacturer VARCHAR(100), -- Производитель автомобиля
+    finish_time TIME,
+    PRIMARY KEY (race_id, driver_id)
+);
+--здесь нарушенно соответствие 3НФ, (race_id, driver_id) -> finish_time, car_model, car_manufacturer (все ок),
+--но car_model -> car_manufacturer (car_manufacturer зависит от неключевого атрибута)
+-- разделим на таблицы
+CREATE TABLE Cars (
+    car_model VARCHAR(100) PRIMARY KEY,
+    car_manufacturer VARCHAR(100)
+);
+CREATE TABLE RaceResults (
+    race_id INT,
+    driver_id INT,
+    finish_time TIME,
+    car_model VARCHAR(100),
+    PRIMARY KEY (race_id, driver_id),
+    FOREIGN KEY (car_model) REFERENCES Cars(car_model)
+);
+--Задание 3 (со звездочкой): Приведение к Нормальной форме Бойса-Кодда (НФБК)
+CREATE TABLE RoomBookings (
+    booking_time DATETIME,
+    room_name VARCHAR(100),
+    event_name VARCHAR(255),
+    event_type VARCHAR(50)
+);
+--Анализ зависимостей и ключей показывает:
+--Потенциальный ключ №1: (booking_time, room_name).
+--Потенциальный ключ №2: (booking_time, event_name).
+--Зависимость, нарушающая НФБК: event_type → room_name.
+--Задача:
+--Объясните, почему зависимость event_type → room_name нарушает правило НФБК в 
+--контексте данной таблицы.
+--Приведите структуру таблиц к нормальной форме Бойса-Кодда.
+CREATE TABLE Rooms (
+    room_id INT PRIMARY KEY,
+    room_name VARCHAR(50)
+);
+CREATE TABLE Bookings (
+    booking_id INT PRIMARY KEY,
+    room_id INT NOT NULL,
+    booking_time DATE,
+    event_type status_type,
+    Foreign Key (room_id) REFERENCES Rooms(room_id)
+);
+CREATE TYPE status_type AS ENUM ('Встреча', 'Презентация');
+
+
